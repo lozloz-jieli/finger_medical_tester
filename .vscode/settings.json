@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "3th_profile_api.h": "c",
+        "btstack_event.h": "c",
+        "app_core.h": "c",
+        "le_gatt_common.h": "c",
+        "spi.h": "c",
+        "lcd_drive.h": "c",
+        "typeinfo": "c"
+    }
+}
