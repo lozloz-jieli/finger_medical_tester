@@ -133,10 +133,11 @@ void app_main()
     app_ui_printf();
     
     printf(">>>>>>>>>>>>>>>>>app_main...\n");
-    printf(">>> v220,2022-11-23 >>>\n");
     read_history_file();                                    //开机读取文件数量
     read_history_offset();                                  //开机读取历史偏移
-    read_history_head_file_offset();                        ////开机读取历史头文件偏移量
+    read_history_head_file_offset();                        //开机读取历史头文件偏移量
+    read_history_index();                                   //开机读取历史数据的索引偏移量
+
     mem_stats();
 
     if (get_charge_online_flag()) {

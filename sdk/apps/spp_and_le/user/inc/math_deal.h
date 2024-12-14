@@ -43,6 +43,7 @@ void collect_timer_cnt_handle(void);
 void collect_timer_cnt_delete(void);
 void clear_axis_status(void);
 u8 get_collect_ok_status(void);
+void trans_history_over_flag(void);
 
 
 

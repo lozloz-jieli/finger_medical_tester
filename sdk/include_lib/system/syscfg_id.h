@@ -132,7 +132,7 @@ u8 *syscfg_ptr_read(u16 item_id, u16 *len);
 #define     CFG_USER_MAC_ADDRESS        5
 #define     CFG_HOLDKEY_RESET           6
 
-#define     CFG_USER_HISTORY_FILE       7                           //记录心电仪文件数量
+#define     CFG_USER_HISTORY_FILE       11                           //记录心电仪文件数量
 #define     CFG_USER_HISTORY_INDEX      8                          //记录历史数据索引偏移量
 #define     CFG_USER_HISTORY_OFFSET     9                         //记录心电仪总体数据偏移量
 #define     CFG_USER_LAST_HEAD_OFFSET   10                         //记录当前文件偏移的地址

@@ -61,6 +61,7 @@ void collect_fail_mode(void);
 void collect_30s_mode(void);
 void collect_full_mode(void);
 void syn_data_mode(void);
+void syn_data_all_ok_mode(void);
 void low_power_mode(void);
 void power_off_mode(void);
 void draw_color_pic(uint16_t x, uint16_t y, const uint16_t *pic, uint16_t hegiht, uint16_t width);

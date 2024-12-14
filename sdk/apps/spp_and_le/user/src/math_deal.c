@@ -384,6 +384,24 @@ u8 get_collect_ok_status(void)
     }
 }
 
+/*
+**********************************************************************
+函数功能：传输历史数据完成后重新测量数据
+函数形参：
+函数返回值：None
+备注：
+日期：2024年10月11日
+作者：lozloz
+版本：V0.0
+**********************************************************************
+*/
+void trans_history_over_flag(void)
+{
+    r_printf("%s",__func__);
+    elec_heart.heart_second = 0;            //心跳的计时清零
+    heart_var.x_flag = 0;                   //画点X轴清零
+    app_var.disp_collect_ok = 0;           //30s显示采集成功清零
+}
 
 /*
 **********************************************************************
@@ -401,7 +419,6 @@ u16 collect_timer_id;
 void file_vm_deal(void)
 {
     history_data.file++;                    //记录一次文本数据
-    loz_exflash_var.temp_file = history_data.file;
     write_history_file();
     g_printf("history_data.file= %d loz_exflash_var.temp_file = %d",history_data.file,loz_exflash_var.temp_file);
 }

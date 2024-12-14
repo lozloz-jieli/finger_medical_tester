@@ -95,7 +95,7 @@ void set_apprtc_time(u8* buffer,u16 len)
 
 /*
 **********************************************************************
-函数功能：
+函数功能：应答对应的文件传输完成
 函数形参：
 函数返回值：None
 备注：
@@ -104,22 +104,13 @@ void set_apprtc_time(u8* buffer,u16 len)
 版本：V0.0
 **********************************************************************
 */
-u16 history_timer_id;
-
-void history_data_deal(void)
+void ack_file_num_ok(u8 file)
 {
-    if(temp_exflash_offse < exflash_offse){
-        
-    }
+    u8 ack_file_buffer[5] = {0x5a,0x04,0x05,0x00,0x00};
+    ack_file_buffer[4] = file;
+    mcu_send_control_app(ack_file_buffer,sizeof(ack_file_buffer));
 }
 
-
-void history_data_handle(void)
-{
-    if(history_timer_id == 0){
-        history_timer_id = sys_timer_add(NULL,history_data_deal,10);
-    }
-}
 
 
 void app_write_cmd_control(u8 *data,u16 len)
@@ -140,6 +131,9 @@ void app_write_cmd_control(u8 *data,u16 len)
     
     case APP_SYC_HIS_DATA:
         //同步历史数据命令
+        loz_exflash_var.history_flag = 1;
+
+        clear_screen();
         syn_data_mode();
         history_data_read_handle();
 

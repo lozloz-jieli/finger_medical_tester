@@ -209,6 +209,8 @@ u8 test_buffer[8192];
 */
 void clear_30s_buffer(void)
 {
+    y_printf("%s",__func__);
+
     memset(collect_30s_buffer,0,sizeof(collect_30s_buffer));
     temp_history_index = 0;
 }
@@ -228,7 +230,7 @@ void clear_30s_buffer(void)
 void write_history_file(void)
 {
     u16 ret;
-    ret = syscfg_write(CFG_USER_HISTORY_INDEX,&history_data.file,1);
+    ret = syscfg_write(CFG_USER_HISTORY_FILE,&history_data.file,1);
     if(ret<0){
         r_printf("%s error",__func__);
     }
@@ -237,7 +239,7 @@ void write_history_file(void)
 void read_history_file(void)
 {
     u16 ret;
-    ret = syscfg_read(CFG_USER_HISTORY_INDEX,&history_data.file,1);
+    ret = syscfg_read(CFG_USER_HISTORY_FILE,&history_data.file,1);
     if(ret<0){
         r_printf("%s error",__func__);
     }
@@ -276,7 +278,7 @@ void read_history_index(void)
         r_printf("%s error",__func__);
     }
 
-    y_printf("-------------------history_index = %d",history_index);
+    y_printf("-------------------exflash_offset_index = %d",exflash_offset_index);
 }
 
 
@@ -394,10 +396,29 @@ void erase_chip(void)
     exflash_offset_index = FLASH_SECTOR;
     last_file_offset_index = FLASH_SECTOR;
     write_history_file();
+    write_history_head_file_offset();
     write_history_index();
     write_history_offset();
-    write_history_head_file_offset();
+
+    loz_exflash_var.temp_file = 0;             //临时变量清零
+    clear_30s_buffer();                     //临时偏移量清零
 #endif
+}
+
+/*
+**********************************************************************
+函数功能:传输数据完成或者异常中断后处理的一些buffer和标志位
+函数形参：
+函数返回值：None
+备注：
+日期：2024年12月10日
+作者：lozloz
+版本：V0.0
+**********************************************************************
+*/
+void trans_data_ok_or_assert(void)
+{
+    temp_history_index = 0;         //30s临时地址偏移索引清零
 }
 
 
@@ -436,7 +457,7 @@ void history_data_write_deal(u16 ecg_vol)
         // log_debug_hexdump(buf, DBUG_PRINTF_LEN);
 
         if(elec_heart.heart_second<=30){
-           
+            
             memcpy(&collect_30s_buffer_data[temp_history_index],&history_data,DETECT_1S_OK_LEN);
             collect_30s_buffer_data[temp_history_index].file = loz_exflash_var.temp_file+1;
             r_printf("temp_history_index = %d,collect_30s_buffer_data[temp_history_index].file = %d",temp_history_index,collect_30s_buffer_data[temp_history_index].file);
@@ -448,6 +469,7 @@ void history_data_write_deal(u16 ecg_vol)
                 log_info("<<<<<<<<<<<<<<<<<<<<<<<<<%s[dev_bulk_write -> exflash_offset:%d len:%d ret:%d]", __func__, exflash_offset, len, ret);
                 exflash_offset += temp_history_index*DETECT_1S_OK_LEN;   
                 r_printf("exflash_offset = %d",exflash_offset);                                              //从第二片扇区开始，记录偏移量
+                loz_exflash_var.temp_file = history_data.file;                                              //临时文件数量存储重新赋值
                 temp_history_index=0;
             }
         }
@@ -456,17 +478,17 @@ void history_data_write_deal(u16 ecg_vol)
             len = DETECT_1S_OK_LEN;
 
             //write
-            put_buf(&history_data,sizeof(history_data));
+            // put_buf(&history_data,sizeof(history_data));
             ret = dev_bulk_write(dev_ptr, &history_data, exflash_offset, sizeof(history_data));
             log_info("%s[dev_bulk_write -> exflash_offset:%d len:%d ret:%d]", __func__, exflash_offset, len, ret);
 
-#if 1  
+#if 0
             //read
             ret = dev_bulk_read(dev_ptr, &test_history_data, exflash_offset, len);
             log_info("++++++++++++++++++++++%s[dev_bulk_read -> exflash_offset:%d len:%d ret:%d]", __func__, exflash_offset, len, ret);
             log_debug_hexdump(&test_history_data, sizeof(HISTORY_DATA));
-            exflash_offset += DETECT_1S_OK_LEN;                               //从第二片扇区开始，记录地址偏移量
 #endif
+            exflash_offset += DETECT_1S_OK_LEN;                               //从第二片扇区开始，记录地址偏移量
 
         }
 #endif
@@ -505,6 +527,7 @@ void history_data_read_deal(void)
 {
     u32 ret;
     u32 len = 256;
+    static u8 close_cnt;
     y_printf("exflash_offset_index = %d,exflash_offset = %d",exflash_offset_index,exflash_offset);
 #if 1  
     //read
@@ -515,20 +538,32 @@ void history_data_read_deal(void)
         exflash_offset_index += 256;
         write_history_index();
 //当文件头文件不同步的时候记录这个头文件的地址
-        if(last_history_data.file != cur_history_data.head){
+        if(last_history_data.file != cur_history_data.file){
+            g_printf("---------------------------------------not same file---------------------------------------------------");
+            r_printf("last_history_data.file = %d,cur_history_data.file = %d",last_history_data.file,cur_history_data.file);
             last_file_offset_index = exflash_offset_index;
-            write_history_head_file_offset();
+            write_history_head_file_offset();                                                  //记录此刻的文件头地址
+            ack_file_num_ok(last_history_data.file);                                        //主动告诉app有一个文件流传输全部完成了
         }
         memcpy(&last_history_data,&cur_history_data,sizeof(HISTORY_DATA));
         notify_send_history_data();
         loz_exflash_var.history_flag = 1;
         // if()
     }else{                   //机制：如果是读满了（read all data ok），就正片flash进行擦除数据处理
-        erase_chip();
+        if(!close_cnt){
+            syn_data_all_ok_mode();
+        }
 
-        //停止读取数据
-        delete_history_read();
-        loz_exflash_var.history_flag = 0;
+        close_cnt++;
+        if(close_cnt == 10){
+            close_cnt = 0;
+            clear_screen();
+            erase_chip();
+            //停止读取数据
+            delete_history_read();
+            trans_history_over_flag();
+            loz_exflash_var.history_flag = 0;
+        }
 
     }
 #endif    
@@ -603,7 +638,8 @@ void check_size_flash(void)
     u32 ret;
     u16 len = 8192;
 
-    ret = dev_bulk_read(dev_ptr, &test_buffer, exflash_offset_index, len);
+    // ret = dev_bulk_read(dev_ptr, &test_buffer, exflash_offset_index, len);
+    ret = dev_bulk_read(dev_ptr, &test_buffer, 0, len);
     
     put_buf(test_buffer,sizeof(test_buffer));
 }

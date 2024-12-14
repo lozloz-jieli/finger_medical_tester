@@ -460,6 +460,7 @@ void ble_gatt_server_cbk_packet_handler(uint8_t packet_type, uint16_t channel, u
                 log_info("conn_latency = %d\n", hci_subevent_le_connection_complete_get_conn_latency(packet));
                 log_info("conn_timeout = %d\n", hci_subevent_le_connection_complete_get_supervision_timeout(packet));
                 app_var.bt_conn = 1;
+                att_server_set_exchange_mtu(tmp_val[0]);
 #if RCSP_BTMATE_EN
                 if (!__this->rcsp_ctrl_en) {
                     __this->rcsp_ctrl_en = 1;

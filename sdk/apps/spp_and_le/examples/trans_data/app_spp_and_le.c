@@ -272,6 +272,7 @@ static void spple_app_start()
     // color_pic_test();
     // battery_pic_disp();
     disp_data_num();
+    // syn_data_all_ok_mode();
     // flash_one_second_deal();
 #endif
 
@@ -394,7 +395,7 @@ static void spple_key_event_handler(struct sys_event *event)
     /* u16 cpi = 0; */
     u8 event_type = 0;
     u8 key_value = 0;
-    u16 goto_poweroff_cnt;
+    static u16 goto_poweroff_cnt;
 
     if (event->arg == (void *)DEVICE_EVENT_FROM_KEY) {
         event_type = event->u.key.event;
@@ -455,8 +456,8 @@ static void spple_key_event_handler(struct sys_event *event)
 
     if(event->arg == DEVICE_EVENT_FROM_HISTORY){
 #if 1
-    //要发送的历史数据
-    mcu_send_history_app(&cur_history_data,sizeof(HISTORY_DATA));
+        //要发送的历史数据
+        mcu_send_history_app(&cur_history_data,sizeof(HISTORY_DATA));
 #endif
     }
 
