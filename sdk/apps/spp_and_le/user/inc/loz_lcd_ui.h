@@ -72,6 +72,7 @@ void flash_one_second_deal(void);
 void battery_pic_disp(void);
 void clear_screen(void);
 void disp_data_num(void);
+void store_data_disp(uint16_t x_axis, uint16_t y_axis);
 
 
 void flash_one_second_handle(void);

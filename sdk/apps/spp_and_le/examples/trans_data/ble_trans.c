@@ -574,10 +574,14 @@ static uint16_t trans_att_read_callback(hci_con_handle_t connection_handle, uint
 
     case ATT_CHARACTERISTIC_2A23_01_VALUE_HANDLE:          
         att_value_len = 6;
+        u8 mac_null[] = {0x00,0x00,0x00,0x00,0x00,0x00};
         lib_make_ble_address(tmp_ble_addr, (void *)bt_get_mac_addr());
-        
-        memcpy(tmp_ble_addr,set_mac_address,6);
-       // change_mac();
+        if(memcmp(set_mac_address,mac_null,6) == 0){
+            change_mac();
+        }else{
+            memcpy(tmp_ble_addr,set_mac_address,6);
+
+        }
         put_buf(tmp_ble_addr,sizeof(tmp_ble_addr));
 
         if ((offset >= att_value_len) || (offset + buffer_size) > att_value_len) {

@@ -37,13 +37,15 @@ extern void low_power_detect_handle(void);
 
 void buzzer_ring_over(void);
 void delete_buzzing_over(void);
-void start_vibrate();
+void start_reset_vibrate(void);
 void buzzer_ring_status_handle(u8 status);
 void buzzer_ring_status_delete(void);
 void alarm_buzze_time_arrive_close(void);
 
 void alarm_buzze_click_close(void);
 void ring_test(void);
+void buzz_heart_fre_handle(void);
+u8 calc_heart_fre(void);
 
 
 extern void immediateAlert_close_buzzer_deal(void);

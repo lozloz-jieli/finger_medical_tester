@@ -1789,6 +1789,7 @@ void low_power_mode(void)
 
 void power_off_mode(void)
 {
+    elec_heart.power_off_flag = 1;
     // Drawchar(10, 10, char_hello, COLOR_WHITE, COLOR_BLACK);
     int x = 30;
     int y = 30;
@@ -1814,7 +1815,7 @@ void power_off_mode(void)
     dots_test(x,y+48+16);
 
     //显示完后关机
-    sys_timeout_add(NULL,heart_poweroff,5000);
+    sys_timeout_add(NULL,heart_poweroff,3000);
    
 }
 
@@ -1992,6 +1993,58 @@ void month_data_disp(uint16_t x_axis, uint16_t y_axis)
 }
 
 
+/*
+**********************************************************************
+函数功能：存储历史数据显示
+函数形参：x：x的起点，y：y的起点，
+函数返回值：None
+备注：
+日期：2024年10月11日
+作者：lozloz
+版本：V0.0
+**********************************************************************
+*/
+void store_data_disp(uint16_t x_axis, uint16_t y_axis)
+{
+    u8 store_shi;
+    u8 store_ge;
+
+    u8 all_shi;
+    u8 all_ge;
+
+    int x = x_axis;
+    int y = y_axis;
+    
+    store_shi = history_data.file/10;
+    store_ge = history_data.file%10;
+
+    all_shi = 20/10;
+    all_ge = 20%10;
+
+    r_printf("have store data = %d",history_data.file);
+
+    // 绘制第一个字符
+    SetAddress(x, y, 24, 10);  // 设置显示区域
+    Draw_any_num(x, y, &num_0_9_20_10[store_shi], COLOR_WHITE, COLOR_BLACK,30); 
+
+    // 绘制第二个字符
+    SetAddress(x, y+10*1, 24, 10);  // 设置下一个字符的位置
+    Draw_any_num(x, y+10, &num_0_9_20_10[store_ge], COLOR_WHITE, COLOR_BLACK,30);
+
+    //绘制三个‘/’字符
+    SetAddress(x, y+10*2, 24, 10);  // 设置下一个字符的位置
+    Draw_any_num(x, y+10, xiegang_20_10, COLOR_WHITE, COLOR_BLACK,30);
+
+    // 绘制第四个字符
+    SetAddress(x, y+10*3, 24, 10);  // 设置下一个字符的位置
+    Draw_any_num(x, y+10, &num_0_9_20_10[all_shi], COLOR_WHITE, COLOR_BLACK,30);
+
+    // 绘制第五个字符
+    SetAddress(x, y+10*4, 24, 10);  // 设置下一个字符的位置
+    Draw_any_num(x, y+10, &num_0_9_20_10[all_ge], COLOR_WHITE, COLOR_BLACK,30);
+}
+
+
 void Disp_color_pic(uint16_t x, uint16_t y, const uint8_t *pic, uint16_t hegiht, uint16_t width) 
 {
     uint16_t i, j;
@@ -2083,7 +2136,17 @@ u16 flash_one_second_timer_id;
 void flash_one_second_deal(void)
 {
 
-    if(loz_exflash_var.history_flag == 1){
+    if(elec_heart.low_power == 1){          // battery <3.3v
+        // putchar('l');
+        return;
+    }
+
+    if(elec_heart.power_off_flag == 1){         //power_off
+        // putchar('f');
+        return; 
+    }
+
+    if(loz_exflash_var.history_flag == 1){      
         return;
     }
 
@@ -2175,13 +2238,15 @@ void disp_data_num(void)
     int y = 30;
     u16 battery_level;
     battery_level = get_vbat_level();
-    if(battery_level < 300){
+    if(battery_level < 330){
+        g_printf("no battery,power off later");
         elec_heart.low_power = 1;
         low_power_mode();
-        sys_timeout_add(NULL,power_off_mode,5000);
+        sys_timeout_add(NULL,power_off_mode,3000);
     }
     else{
-        month_data_disp(x,y);
+        // month_data_disp(x,y);
+        store_data_disp(x,y);
         battery_pic_disp();
     }
 
@@ -2209,12 +2274,12 @@ void battery_pic_disp(void)
     battery_level = get_vbat_level();
     battery_percnet = get_vbat_percent();
     r_printf("battery_percnet = %d, battery_level = %d",battery_percnet,battery_level);
-    if(battery_level<320){
+    if(battery_level<350){
         //lower power
         y_printf("here are the gImage_power_1");
         power_data = gImage_power_1;
     }
-    else if(battery_level<350){
+    else if(battery_level<370){
         y_printf("here are the gImage_power_2");
         power_data = gImage_power_2;
 

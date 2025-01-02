@@ -24,6 +24,14 @@
 #define LOG_CLI_ENABLE
 #include "debug.h"
 
+#if 1//LE_DEBUG_PRINT_EN
+#define log_info(x, ...)  printf("[LOST]" x " ", ## __VA_ARGS__)
+#define log_info_hexdump  printf_buf
+#else
+#define log_info(...)
+#define log_info_hexdump(...)
+#endif
+
 #define FAST_ADV_INTERVAL_MIN          (800)   //500ms            蓝牙连接是由这两个宏决定的，广播间隔短，连接块
 #define SLOW_ADV_INTERVAL_MIN          (2400)  //1.5s
 
@@ -665,28 +673,7 @@ void app_key_deal(u8 event_type, u8 key_value)
     }
 }
 
-u16 countdown_start_buzzer_id;
-#define TIME_VIBRATER_DURATION  200
 
-
-void stop_vibrate()   //  开振动提示
-{
-    log_info("stop_vibrate");
-	buzzer_close();
-	countdown_start_buzzer_id = 0;
-}
-
-void start_vibrate()
-{
-  // start vibrating  for 300ms
-  // add
-    log_info("start_buzzer");
-    buzzer_ring();
-    if(countdown_start_buzzer_id == 0){
-        countdown_start_buzzer_id = sys_timeout_add(NULL,stop_vibrate,TIME_VIBRATER_DURATION);
-    }
-
-}
 
 
 
@@ -876,12 +863,154 @@ void alarm_buzze_click_close(void)
 
 
 
-/*****************************************灯光指示**********************************************/
-/*
-	PB7 : yellow
-	PA0 : red
-	PA2 : blue
+/*****************************************蜂鸣器应用层软件**********************************************/
 
+/*
+**********************************************************************
+函数功能：蜂鸣器按照频率响应各个函数的处理了
+函数形参：None
+函数返回值：None
+备注：
+日期：2024年04月22日
+作者：lozloz
+版本：V0.0
+**********************************************************************
 */
+//定时器的id号
+u16 buzz_heart_fre_timer_id;
+
+//频率响应的定时器删除函数
+void buzz_heart_fre_delete(void)
+{
+    if(buzz_heart_fre_timer_id){
+        sys_timer_del(buzz_heart_fre_timer_id);
+        buzz_heart_fre_timer_id = 0;
+    }
+}
+
+//频率响应定时器的时间更改函数
+void buzz_heart_fre_modify(void)
+{
+    if(buzz_heart_fre_timer_id){
+        sys_timer_modify(buzz_heart_fre_timer_id,calc_heart_fre());
+    }
+}
+
+//定时器时间的计算函数
+u8 calc_heart_fre(void)
+{
+    u8 timer_cycle;
+    timer_cycle = elec_heart.heart_data * 1000 / 60;
+
+    r_printf("timer_cycle = %d",timer_cycle);
+    
+    return timer_cycle;
+}
+
+//定时器频率的事件处理函数
+void buzz_heart_fre_deal(void)
+{
+    static u8 fliter_cnt;
+    static u8 ring_flag;
+
+    if(!ring_flag){
+
+    }
+
+
+    if(elec_heart.heart_data != elec_heart.last_heart_data){
+        fliter_cnt++;                                                                   //过滤
+        if(fliter_cnt == 4){                                                            //过滤次数为4
+            buzz_heart_fre_modify();
+            elec_heart.last_heart_data = elec_heart.heart_data;
+        }
+    }else{
+        fliter_cnt = 0;
+    }
+}
+
+//定时器频率的定时器注册函数
+void buzz_heart_fre_handle(void)
+{
+    if(!(elec_heart.heart_data>20 && elec_heart.heart_data<250)){
+        r_printf("error heart_data return");
+        return;
+    }
+
+
+    if(buzz_heart_fre_timer_id == 0){
+        buzz_heart_fre_timer_id = sys_timer_add(NULL,buzz_heart_fre_deal,calc_heart_fre());
+    }
+}
+
+
+/*
+**********************************************************************
+函数功能：蜂鸣器复位响应
+函数形参：None
+函数返回值：None
+备注：
+日期：2024年04月22日
+作者：lozloz
+版本：V0.0
+**********************************************************************
+*/
+u16 countdown_start_buzzer_id;
+#define TIME_VIBRATER_DURATION  3*1000
+
+
+void stop_reset_vibrate(void)   //  开振动提示
+{
+    log_info("stop_reset_vibrate");
+	buzzer_close();
+	countdown_start_buzzer_id = 0;
+    cpu_reset();
+}
+
+void start_reset_vibrate(void)
+{
+  // start vibrating  for 300ms
+  // add
+    log_info("start_reset_vibrate");
+    buzzer_ring();
+    if(countdown_start_buzzer_id == 0){
+        countdown_start_buzzer_id = sys_timeout_add(NULL,stop_reset_vibrate,TIME_VIBRATER_DURATION);
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*****************************************蜂鸣器应用层软件**********************************************/
+
+
+
+
+
+
+
+
+
+
 
 

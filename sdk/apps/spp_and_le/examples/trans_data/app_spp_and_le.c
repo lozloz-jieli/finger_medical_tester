@@ -402,7 +402,10 @@ static void spple_key_event_handler(struct sys_event *event)
         key_value = event->u.key.value;
         log_info("app_key_evnet: %d,%d\n", event_type, key_value);
         /*Change Case To Idle Demo*/
-
+        
+        if(app_var.power_off_flag == 1){
+            return;
+        }
 
         if (event_type == KEY_EVENT_DOUBLE_CLICK) {
             // DispFrame();
@@ -417,7 +420,10 @@ static void spple_key_event_handler(struct sys_event *event)
             // clear_screen();
             // ring_test();
             // LCD_DMA_Clear(BLACK);
-            check_size_flash();
+            if(!app_var.power_off_flag){
+                app_var.power_off_flag = 1; 
+                power_off_mode();
+            }
         }
 
         if(event_type == KEY_EVENT_TRIPLE_CLICK){
@@ -429,13 +435,18 @@ static void spple_key_event_handler(struct sys_event *event)
         }
         if(event_type == KEY_EVENT_LONG){
             // write_equal_4x4_test();
+            check_size_flash();
         }
 
         if(event_type == KEY_EVENT_HOLD){
             goto_poweroff_cnt++;
             r_printf("goto_poweroff_cnt = %d",goto_poweroff_cnt);
-            if(goto_poweroff_cnt == 2){
-                spple_set_soft_poweroff();
+            if(goto_poweroff_cnt == 20){
+                // spple_set_soft_poweroff();
+                erase_chip();
+                // cpu_reset();
+                start_reset_vibrate();
+
             }
         }
 

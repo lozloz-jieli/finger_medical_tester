@@ -23,7 +23,7 @@ typedef struct  __HISTORY_DATA
 
 //一些全局数据的结构体
 typedef struct  __LOZ_EXFLASH_VAR{
-    u8 history_flag;          //是否在上传历史数据，在上传历史数据的时候，优先级高，卡主1.实时数据的传输，2.再继续传输历史数据，3.采集心电数据，4，显示时间及其心跳
+    u8 history_flag;          //是否/卡主一些图形，在上传历史数据，在上传历史数据的时候，优先级高，卡主1.实时数据的传输，2.再继续传输历史数据，3.采集心电数据，4，显示时间及其心跳
     u8 temp_file;               //临时文件管理标志位
 }LOZ_EXFLASH_VAR;
 

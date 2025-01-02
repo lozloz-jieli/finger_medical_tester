@@ -527,45 +527,55 @@ void history_data_read_deal(void)
 {
     u32 ret;
     u32 len = 256;
-    static u8 close_cnt;
+    static u8 close_cnt;                    //显示
     y_printf("exflash_offset_index = %d,exflash_offset = %d",exflash_offset_index,exflash_offset);
 #if 1  
     //read
-    if(exflash_offset_index<exflash_offset){
-        ret = dev_bulk_read(dev_ptr, &cur_history_data, exflash_offset_index, len);
-        log_info("++++++++++++++++++++++%s[dev_bulk_read -> exflash_offset_index:%d len:%d ret:%d]", __func__, exflash_offset_index, len, ret);
-        log_debug_hexdump(&cur_history_data, sizeof(HISTORY_DATA));
-        exflash_offset_index += 256;
-        write_history_index();
-//当文件头文件不同步的时候记录这个头文件的地址
-        if(last_history_data.file != cur_history_data.file){
-            g_printf("---------------------------------------not same file---------------------------------------------------");
-            r_printf("last_history_data.file = %d,cur_history_data.file = %d",last_history_data.file,cur_history_data.file);
-            last_file_offset_index = exflash_offset_index;
-            write_history_head_file_offset();                                                  //记录此刻的文件头地址
-            ack_file_num_ok(last_history_data.file);                                        //主动告诉app有一个文件流传输全部完成了
-        }
-        memcpy(&last_history_data,&cur_history_data,sizeof(HISTORY_DATA));
-        notify_send_history_data();
-        loz_exflash_var.history_flag = 1;
-        // if()
-    }else{                   //机制：如果是读满了（read all data ok），就正片flash进行擦除数据处理
-        if(!close_cnt){
-            syn_data_all_ok_mode();
-        }
+    if(elec_heart.history_flag == 1){
 
-        close_cnt++;
-        if(close_cnt == 10){
-            close_cnt = 0;
-            clear_screen();
-            erase_chip();
-            //停止读取数据
-            delete_history_read();
-            trans_history_over_flag();
-            loz_exflash_var.history_flag = 0;
-        }
+        if(exflash_offset_index<exflash_offset){
+            ret = dev_bulk_read(dev_ptr, &cur_history_data, exflash_offset_index, len);
+            log_info("++++++++++++++++++++++%s[dev_bulk_read -> exflash_offset_index:%d len:%d ret:%d]", __func__, exflash_offset_index, len, ret);
+            log_debug_hexdump(&cur_history_data, sizeof(HISTORY_DATA));
+            // exflash_offset_index += 256;
+            // write_history_index();
+    //当文件头文件不同步的时候记录这个头文件的地址
+            if(last_history_data.file != cur_history_data.file){
+                g_printf("---------------------------------------not same file---------------------------------------------------");
+                r_printf("last_history_data.file = %d,cur_history_data.file = %d",last_history_data.file,cur_history_data.file);
+                last_file_offset_index = exflash_offset_index;
+                write_history_head_file_offset();                                                  //记录此刻的文件头地址
+                ack_file_num_ok(last_history_data.file);                                        //主动告诉app有一个文件流传输全部完成了
+                if(last_history_data.file>0){
+                    elec_heart.history_flag = 0;                                                        //等云服务处理完后继续下发下发数据
+                }
+            }
+            exflash_offset_index += 256;
+            write_history_index();            
+            memcpy(&last_history_data,&cur_history_data,sizeof(HISTORY_DATA));
+            notify_send_history_data();
+            loz_exflash_var.history_flag = 1;
+            // if()
+        }else{                   //机制：如果是读满了（read all data ok），就正片flash进行擦除数据处理
+            if(!close_cnt){
+                syn_data_all_ok_mode();
+                ack_file_num_ok(last_history_data.file);                                        //主动告诉app最后一个文件流传输全部完成了
+            }
 
+            close_cnt++;
+            if(close_cnt == 10){
+                close_cnt = 0;
+                clear_screen();
+                erase_chip();
+                //停止读取数据
+                delete_history_read();
+                trans_history_over_flag();
+                loz_exflash_var.history_flag = 0;
+            }
+
+        }
     }
+    
 #endif    
 }
 

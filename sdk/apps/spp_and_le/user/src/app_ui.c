@@ -131,7 +131,8 @@ void app_write_cmd_control(u8 *data,u16 len)
     
     case APP_SYC_HIS_DATA:
         //同步历史数据命令
-        loz_exflash_var.history_flag = 1;
+        loz_exflash_var.history_flag = 1;           //让其他图形不能操作
+        elec_heart.history_flag = 1;                //为了处理开始下一个文件操作的标志位
 
         clear_screen();
         syn_data_mode();

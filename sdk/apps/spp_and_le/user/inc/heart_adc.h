@@ -15,7 +15,6 @@ typedef struct __HEART_VAR
     int cycle_timer_id;
     char drop_flag;
     int x_flag;                 //画心跳曲线点的X轴
-
 }HEART_VAR;
 
 

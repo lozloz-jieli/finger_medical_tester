@@ -40,6 +40,8 @@ typedef struct _APP_VAR {
     u8 reset_factory;         //是否修改了蓝牙名
     u8 bt_conn;             //蓝牙连接标志位
     u8 real_flag;           //实时数据上发标志位；
+    u8 power_off_flag;         //关机标志位
+
 } APP_VAR;
 
 enum {
@@ -54,7 +56,10 @@ typedef struct __ELEC_HEART
     u8 power_second;
     u16 heart_second;                   //心跳的计时
     u16 heart_data;  
+    u16 last_heart_data;                //记录心跳数据上下次的变化是否
     u8 low_power;
+    u8 power_off_flag;                  //关机标志位
+    u8 history_flag;                    //为了处理每份文件的云服务上传，好了一条文件上传一次
 }ELEC_HEART;
 
 

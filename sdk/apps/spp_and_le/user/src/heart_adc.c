@@ -208,8 +208,17 @@ void deal_adc_value(int first_adc,int tem_adc)
 
 void collect_heart_sound_deal(void)
 {
+    if(elec_heart.low_power == 1){          // battery <3.3v
+        // putchar('l');
+        return;
+    }
     
-    if(!elec_heart.heart_second){
+    if(elec_heart.power_off_flag == 1){         //power_off
+        // putchar('f');
+        return; 
+    }
+    
+    if(!elec_heart.heart_second){           //心跳计时<0,不做采集
         // putchar('X');
         return;
     }
