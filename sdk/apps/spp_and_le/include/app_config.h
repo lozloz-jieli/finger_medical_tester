@@ -34,19 +34,19 @@
 #define LCD_RST_L() 			        do{gpio_set_die(LCD_RST_PORT, 1);gpio_set_direction(LCD_RST_PORT, 0);gpio_set_pull_down(LCD_RST_PORT, 0);\
 	                  			        gpio_set_pull_up(LCD_RST_PORT, 0);gpio_set_output_value(LCD_RST_PORT,0);}while(0)
 
-#define LCD_PWR_PORT   		            IO_PORTC_00                                                                                   /*POWER*/             //背光
+#define LCD_PWR_PORT   		            IO_PORTC_00                                                                                   /*POWER*/             //供电
 #define LCD_PWR_H() 			        do{gpio_set_die(LCD_PWR_PORT, 1);gpio_set_direction(LCD_PWR_PORT, 0);gpio_set_pull_down(LCD_PWR_PORT, 0);\                                  
 	                  			        gpio_set_pull_up(LCD_PWR_PORT, 0);gpio_set_output_value(LCD_PWR_PORT,1);}while(0)                                       
 #define LCD_PWR_L() 			        do{gpio_set_die(LCD_PWR_PORT, 1);gpio_set_direction(LCD_PWR_PORT, 0);gpio_set_pull_down(LCD_PWR_PORT, 0);\
 	                  			        gpio_set_pull_up(LCD_PWR_PORT, 0);gpio_set_output_value(LCD_PWR_PORT,0);}while(0)
 
-#define LCD_BLC_PORT   		            IO_PORTA_09                                                                                   /*POWER*/             //背光
+#define LCD_BLC_PORT   		            IO_PORTA_09                                                                                   /*BLC*/             //背光
 #define LCD_BLC_H() 			        do{gpio_set_die(LCD_BLC_PORT, 1);gpio_set_direction(LCD_BLC_PORT, 0);gpio_set_pull_down(LCD_BLC_PORT, 0);\                                  
 	                  			        gpio_set_pull_up(LCD_BLC_PORT, 0);gpio_set_output_value(LCD_BLC_PORT,1);}while(0)                                       
 #define LCD_BLC_L() 			        do{gpio_set_die(LCD_BLC_PORT, 1);gpio_set_direction(LCD_BLC_PORT, 0);gpio_set_pull_down(LCD_BLC_PORT, 0);\
 	                  			        gpio_set_pull_up(LCD_BLC_PORT, 0);gpio_set_output_value(LCD_BLC_PORT,0);}while(0)
 
-#define LCD_FHIO_PORT   		        IO_PORTB_06                                                                                   /*POWER*/             //背光
+#define LCD_FHIO_PORT   		        IO_PORTB_06                                                                                   /**/             //
 #define LCD_FHIO_H() 			        do{gpio_set_die(LCD_FHIO_PORT, 1);gpio_set_direction(LCD_FHIO_PORT, 0);gpio_set_pull_down(LCD_FHIO_PORT, 0);\                                  
 	                  			        gpio_set_pull_up(LCD_FHIO_PORT, 0);gpio_set_output_value(LCD_FHIO_PORT,1);}while(0)                                       
 #define LCD_FHIO_L() 			        do{gpio_set_die(LCD_FHIO_PORT, 1);gpio_set_direction(LCD_FHIO_PORT, 0);gpio_set_pull_down(LCD_FHIO_PORT, 0);\

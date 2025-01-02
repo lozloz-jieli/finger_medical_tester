@@ -39,6 +39,7 @@ static const u32 sys2adc_clk_info[] = {
     6000000L,
     1000000L,
 };
+u32 adc_fast_sample(u32 ch); // 96M频率耗时1us-2us之间
 
 u32 adc_add_sample_ch(u32 ch)
 {
@@ -152,6 +153,17 @@ u32 adc_get_voltage(u32 ch)
     /*         adc_get_value(AD_CH_VBAT), adc_res * 4);          */
     return adc_res;
 }
+
+u32 adc_get_voltage_fast(u32 ch)
+{
+    u32 adc_vbg = adc_get_value(AD_CH_LDOREF);//adc_fast_sample(AD_CH_LDOREF);
+    u32 adc_res = adc_fast_sample(ch);
+    if(adc_vbg == 0){
+        return 0;
+    }
+    return adc_value_to_voltage(adc_vbg, adc_res);
+}
+
 
 u32 adc_check_vbat_lowpower()
 {
@@ -352,6 +364,7 @@ u32 adc_sample(u32 ch)
 #define     VBG_VBAT_SCAN_CNT_FOR_CHARGE    100
 
 static volatile u8 is_break = 0;
+
 void adc_scan(void *priv)
 {
     static u16 vbg_vbat_cnt = VBG_VBAT_SCAN_CNT;
@@ -373,7 +386,8 @@ void adc_scan(void *priv)
         adc_sample(adc_queue[cur_ch].ch);
         is_break = 0;
         return;
-    }             // 添加此段代码 end
+    }     
+
     /* if (!(JL_ADC->CON & BIT(4))) { //adc disable */
     /*     return;                                  */
     /* }                                            */
@@ -709,7 +723,6 @@ void adc_vbg_init()
 {
     return ;
 }
-//__initcall(adc_vbg_init);
 
 
 /**********************************************************************************
@@ -723,14 +736,19 @@ void adc_vbg_init()
  **********************************************************************************/
 #include "gpio.h"
 AT_VOLATILE_RAM_CODE
-int adc_sample_ch_one(u32 gpio, u32 ch)
+u32 adc_sample_ch_one(u32 gpio, u32 ch)
 {
     /* printf("%s[lsb:%d gpio:0x%x, ch:%d]", __func__, clk_get("lsb"), gpio, ch); */
     u32 adc = 0;
     u32 vbg = 0;
     u32 voltage = 0;
-    if (JL_ADC->CON & BIT(4)) { return -1; }  //hi_timer,中断函数执行
-    // while (!(JL_ADC->CON & BIT(4)));      //sys_timer,线程任务执行 
+    // printf("%s[adc:%d vbg:%d voltage:%d]----1", __func__, adc, vbg, voltage); 
+
+    // if (JL_ADC->CON & BIT(4)) { 
+    //     // printf("%s[adc:%d vbg:%d voltage:%d]----2", __func__, adc, vbg, voltage); 
+    //     return -1; 
+    // }  //hi_timer,中断函数执行
+    while (!(JL_ADC->CON & BIT(4)));      //sys_timer,线程任务执行  
     //occupy_mode enter
     local_irq_disable();
     adc_queue[ADC_MAX_CH].ch = ch;
@@ -746,16 +764,19 @@ int adc_sample_ch_one(u32 gpio, u32 ch)
     JL_ADC->CON |= ((ch & 0xf) << 8);
     JL_ADC->CON |= ((0x1 << 12) | BIT(4) | BIT(3) | (0b001));
     JL_ADC->CON |= BIT(6);
+    // printf("%s[adc:%d vbg:%d voltage:%d]----3", __func__, adc, vbg, voltage); 
     while ((JL_ADC->CON & BIT(7)) == 0);
     __asm__ volatile("nop");
     adc = JL_ADC->RES;
     JL_ADC->CON = BIT(6);
     //AD_CH_LDOREF
     JL_ADC->CON = BIT(6);
+    // adc_pmu_ch_select(AD_CH_LDOREF >> 16);
     adc_pmu_ch_select(AD_CH_LDOREF >> 20);
     JL_ADC->CON |= ((AD_CH_LDOREF & 0xf) << 8);
     JL_ADC->CON |= ((0x1 << 12) | BIT(4) | BIT(3) | (0b001));
     JL_ADC->CON |= BIT(6);
+    // printf("%s[adc:%d vbg:%d voltage:%d]----4", __func__, adc, vbg, voltage); 
     while ((JL_ADC->CON & BIT(7)) == 0);
     __asm__ volatile("nop");
     vbg = JL_ADC->RES;
@@ -766,83 +787,32 @@ int adc_sample_ch_one(u32 gpio, u32 ch)
     local_irq_enable();
     //不能用adc值做判断，必须和参考电压换算成绝对电压
     voltage = adc_value_to_voltage(vbg, adc);
-    printf("%s[adc:%d vbg:%d voltage:%d]", __func__, adc, vbg, voltage);
+    // printf("%s[adc:%d vbg:%d voltage:%d]----5", __func__, adc, vbg, voltage); 
     return voltage;
 }
 
 AT_VOLATILE_RAM_CODE
-u32 adc_fast_sample(u32 ch) //96M频率耗时1us-2us之间
+u32 adc_fast_sample(u32 ch) // 96M频率耗时1us-2us之间
 {
     /* printf("%s[%d 0x%x]", __func__, clk_get("lsb"), ch); */
-    u32 adc = 0;
-    u32 vbg = 0;
-    u32 voltage = 0;
+    u16 adc_value = 0;
     /* local_irq_disable(); */
-    local_irq_disable();
     is_break = 1; //打断原先未采样完的通道，adc_scan需要重新设置采样
     adc_queue[ADC_MAX_CH].ch = ch;
-    local_irq_enable();
     JL_ADC->CON = BIT(6);
-    JL_ADC->CON |= ((ch&0xf)<<8);//IO通道
-    JL_ADC->CON |= ((0x0<<12)|BIT(4)|BIT(3)|(0b000));//lsb 1分频
+    JL_ADC->CON |= ((ch & 0xf) << 8);                         // IO通道
+    JL_ADC->CON |= ((0x1 << 12) | BIT(4) | BIT(3) | (0b001)); // lsb 1分频  
     JL_ADC->CON |= BIT(6);
+    JL_ADC->CON |= BIT(4);
+    __asm__ volatile("csync");
     while ((JL_ADC->CON & BIT(7)) == 0);
-     __asm__ volatile("nop");
-    adc = JL_ADC->RES;
+    adc_value = JL_ADC->RES;
     JL_ADC->CON = BIT(6);
-
-
-    JL_ADC->CON = BIT(6);
-    adc_pmu_ch_select(AD_CH_LDOREF >> 20);
-    JL_ADC->CON |= ((AD_CH_LDOREF & 0xf) << 8);
-    JL_ADC->CON |= ((0x1 << 12) | BIT(4) | BIT(3) | (0b001));
-    JL_ADC->CON |= BIT(6);
-    while ((JL_ADC->CON & BIT(7)) == 0);
-    __asm__ volatile("nop");
-    vbg = JL_ADC->RES;
-    JL_ADC->CON = BIT(6);
-
-
-
-    local_irq_disable();
     adc_queue[ADC_MAX_CH].ch = -1;
-    local_irq_enable();
     /* local_irq_enable(); */
-    voltage = adc_value_to_voltage(vbg, adc);
-    // printf("%s[adc:%d vbg:%d voltage:%d]", __func__, adc, vbg, voltage);
-    return voltage;
+    adc_sample(adc_queue[cur_ch].ch);
+    is_break = 0;
+    return adc_value;
 }
 
-
-#define     VBG_CENTER  801
-#define     VBG_RES     3
-u32 adc_value_to_voltage_special(u32 adc_vbg, u32 adc_ch_val)
-{
-    u32 adc_res = adc_ch_val;
-    u32 adc_trim = get_vbg_trim();
-    u32 tmp, tmp1;
-
-    tmp1 = adc_trim & 0x0f;
-    tmp = (adc_trim & BIT(4)) ? VBG_CENTER - tmp1 * VBG_RES : VBG_CENTER + tmp1 * VBG_RES;
-    adc_res = adc_res * tmp / adc_vbg;
-    //printf("adc_res %d mv vbg:%d adc:%d adc_trim:%x\n", adc_res, adc_vbg, adc_ch_val, adc_trim);
-    return adc_res;
-}
-
-u32 adc_get_voltage_special(u32 ch)
-{
-
-    u32 adc_vbg = adc_get_value(AD_CH_LDOREF);
-    u32 adc_res = adc_fast_sample(ch);
-
-    if(adc_vbg == 0){
-        return 0;
-    }
-
-    u32 adc_trim = get_vbg_trim();
-    u32 tmp, tmp1;
-
-   return adc_value_to_voltage_special(adc_vbg, adc_res);
-
-}
-
+//__initcall(adc_vbg_init);

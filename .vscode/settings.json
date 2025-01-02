@@ -6,6 +6,7 @@
         "le_gatt_common.h": "c",
         "spi.h": "c",
         "lcd_drive.h": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "gpio.h": "c"
     }
 }

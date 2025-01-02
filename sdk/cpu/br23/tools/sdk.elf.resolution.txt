@@ -6,8 +6,6 @@ obj/Release/cpu/br23/adc_api.o
 -r=obj/Release/cpu/br23/adc_api.o,adc_value_to_voltage,pl
 -r=obj/Release/cpu/br23/adc_api.o,get_vbg_trim,l
 -r=obj/Release/cpu/br23/adc_api.o,adc_get_voltage,pl
--r=obj/Release/cpu/br23/adc_api.o,adc_get_voltage_fast,pl
--r=obj/Release/cpu/br23/adc_api.o,adc_fast_sample,pl
 -r=obj/Release/cpu/br23/adc_api.o,adc_check_vbat_lowpower,pl
 -r=obj/Release/cpu/br23/adc_api.o,adc_audio_ch_select,pl
 -r=obj/Release/cpu/br23/adc_api.o,adc_pll_detect_en,pl
@@ -50,6 +48,9 @@ obj/Release/cpu/br23/adc_api.o
 -r=obj/Release/cpu/br23/adc_api.o,gpio_set_dieh,l
 -r=obj/Release/cpu/br23/adc_api.o,gpio_set_direction,l
 -r=obj/Release/cpu/br23/adc_api.o,adc_pmu_ch_select,l
+-r=obj/Release/cpu/br23/adc_api.o,adc_fast_sample,pl
+-r=obj/Release/cpu/br23/adc_api.o,adc_value_to_voltage_special,pl
+-r=obj/Release/cpu/br23/adc_api.o,adc_get_voltage_special,pl
 -r=obj/Release/cpu/br23/adc_api.o,p33_rx_1byte,l
 -r=obj/Release/cpu/br23/adc_api.o,p33_soft_reset,l
 -r=obj/Release/cpu/br23/adc_api.o,power_set_wvdd,l
@@ -3755,12 +3756,12 @@ obj/Release/apps/spp_and_le/user/src/extflash_op.o
 -r=obj/Release/apps/spp_and_le/user/src/extflash_op.o,sys_event_notify,l
 -r=obj/Release/apps/spp_and_le/user/src/extflash_op.o,history_data_read_deal,pl
 -r=obj/Release/apps/spp_and_le/user/src/extflash_op.o,dev_bulk_read,l
--r=obj/Release/apps/spp_and_le/user/src/extflash_op.o,printf_buf,l
 -r=obj/Release/apps/spp_and_le/user/src/extflash_op.o,ack_file_num_ok,l
+-r=obj/Release/apps/spp_and_le/user/src/extflash_op.o,printf_buf,l
 -r=obj/Release/apps/spp_and_le/user/src/extflash_op.o,syn_data_all_ok_mode,l
 -r=obj/Release/apps/spp_and_le/user/src/extflash_op.o,clear_screen,l
--r=obj/Release/apps/spp_and_le/user/src/extflash_op.o,delete_history_read,pl
 -r=obj/Release/apps/spp_and_le/user/src/extflash_op.o,trans_history_over_flag,l
+-r=obj/Release/apps/spp_and_le/user/src/extflash_op.o,delete_history_read,pl
 -r=obj/Release/apps/spp_and_le/user/src/extflash_op.o,history_data_read_handle,pl
 -r=obj/Release/apps/spp_and_le/user/src/extflash_op.o,sys_timer_add,l
 -r=obj/Release/apps/spp_and_le/user/src/extflash_op.o,sys_timer_del,l
@@ -3813,6 +3814,7 @@ obj/Release/apps/spp_and_le/user/src/heart_adc.o
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,gpio_set_die,l
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,adc_heart_detect_init,pl
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,printf,l
+-r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,gpio_set_dieh,l
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,notify_draw_line,pl
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,sys_event_notify,l
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,heart_drop_out_read,pl
@@ -3822,7 +3824,7 @@ obj/Release/apps/spp_and_le/user/src/heart_adc.o
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,deal_adc_value,pl
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,collect_heart_sound_deal,pl
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,get_collect_ok_status,l
--r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,adc_get_value,l
+-r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,adc_fast_sample,l
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,Get_ECG_ad_value_deal,l
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,history_data_write_deal,l
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,putchar,l
@@ -3833,11 +3835,11 @@ obj/Release/apps/spp_and_le/user/src/heart_adc.o
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,haert_adc_printf,pl
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,axis_xy,pl
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,ecg_var,pl
+-r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,ecg_var_vol,pl
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,heart_var,pl
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,elec_heart,l
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,loz_exflash_var,l
 -r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,app_var,l
--r=obj/Release/apps/spp_and_le/user/src/heart_adc.o,ecg_var_vol,pl
 obj/Release/apps/spp_and_le/user/src/lcd.o
 -r=obj/Release/apps/spp_and_le/user/src/lcd.o,lcd_spi_init,pl
 -r=obj/Release/apps/spp_and_le/user/src/lcd.o,spi_open,l
@@ -4192,7 +4194,6 @@ obj/Release/apps/spp_and_le/user/src/utils.o
 -r=obj/Release/apps/spp_and_le/user/src/utils.o,days_from_1970_to_year,pl
 -r=obj/Release/apps/spp_and_le/user/src/utils.o,days_from_months,pl
 -r=obj/Release/apps/spp_and_le/user/src/utils.o,custom_mktime,pl
--r=obj/Release/apps/spp_and_le/user/src/utils.o,printf,l
 -r=obj/Release/apps/spp_and_le/user/src/utils.o,mkusatime,pl
 -r=obj/Release/apps/spp_and_le/user/src/utils.o,hexstr,pl
 -r=obj/Release/apps/spp_and_le/user/src/utils.o,Days,pl

@@ -198,7 +198,7 @@ unsigned int custom_mktime(struct sys_time *time_data)
     // 3. 加上当天的时间部分
     total_seconds += hour * 3600 + min * 60 + sec;
 
-    printf("total_seconds = %u",total_seconds);
+    // printf("total_seconds = %u",total_seconds);
 
     
     return total_seconds; // 返回 Unix 时间戳（UTC 时间）

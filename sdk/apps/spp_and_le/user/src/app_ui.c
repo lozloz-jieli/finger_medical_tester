@@ -106,7 +106,7 @@ void set_apprtc_time(u8* buffer,u16 len)
 */
 void ack_file_num_ok(u8 file)
 {
-    u8 ack_file_buffer[5] = {0x5a,0x04,0x05,0x00,0x00};
+    u8 ack_file_buffer[5] = {0x5a,0x04,0x02,0x00,0x00};
     ack_file_buffer[4] = file;
     mcu_send_control_app(ack_file_buffer,sizeof(ack_file_buffer));
 }
@@ -142,7 +142,7 @@ void app_write_cmd_control(u8 *data,u16 len)
 
     case APP_CHECK_HIS_DATA:
 
-        u8 temp_buffer[5] = {0x5a,0x03,0x05,0x00,0x00};
+        u8 temp_buffer[5] = {0x5a,0x03,0x02,0x00,0x00};
         temp_buffer[4] = remain_history_file();
         mcu_send_control_app(temp_buffer,sizeof(temp_buffer));
         break;

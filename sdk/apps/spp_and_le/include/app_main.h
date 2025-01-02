@@ -60,6 +60,7 @@ typedef struct __ELEC_HEART
     u8 low_power;
     u8 power_off_flag;                  //关机标志位
     u8 history_flag;                    //为了处理每份文件的云服务上传，好了一条文件上传一次
+    u8 history_notify_flag;                    //为了处理每份文件的云服务上传，好了一条文件上传一次
 }ELEC_HEART;
 
 

@@ -18,7 +18,8 @@ typedef struct __HEART_VAR
 }HEART_VAR;
 
 
-#define COLLECT_STEP        5
+#define COLLECT_STEP        2
+#define COLLECT_X_MUL       1
 
 extern HEART_VAR heart_var;
 

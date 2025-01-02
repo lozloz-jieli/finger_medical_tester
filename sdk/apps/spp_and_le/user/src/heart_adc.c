@@ -39,6 +39,9 @@ AXIS_XY axis_xy;
 
 extern void Get_ECG_ad_value_deal(u16 adv_value);
 extern void history_data_write_deal(u16 ecg_vol);
+extern u32 adc_sample_ch_one(u32 gpio, u32 ch);
+extern u32 adc_fast_sample(u32 ch); //96M频率耗时1us-2us之间
+extern u32 adc_get_voltage_special(u32 ch);
 
 
 void ECG_init(void)
@@ -74,6 +77,7 @@ void adc_heart_detect_init(void)
     adc_add_sample_ch(TCFG_ADC_DETECTION_HEART_CH);          //注意：初始化AD_KEY之前，先初始化ADC
 
     gpio_set_die(TCFG_ADC_DETECTION_HEART, 0);
+    gpio_set_dieh(TCFG_ADC_DETECTION_HEART, 0);
     gpio_set_direction(TCFG_ADC_DETECTION_HEART, 1);
     gpio_set_pull_down(TCFG_ADC_DETECTION_HEART, 0);
     gpio_set_pull_up(TCFG_ADC_DETECTION_HEART, 0);
@@ -125,6 +129,7 @@ void clear_axis_status(void)
 {
     memset(&axis_xy,0,sizeof(AXIS_XY));
     memset(&ecg_var,0,sizeof(EcgDataBuffer));
+    memset(&ecg_var_vol,0,sizeof(EcgDataBuffer));
 }
 
 
@@ -149,9 +154,9 @@ void deal_adc_value(int first_adc,int tem_adc)
 
 
 #if 1   //阈值处理
-            if(tem_adc > 705)
+            if(tem_adc > LIMIT_HIGH)
             {
-                tem_adc = 705;
+                tem_adc = LIMIT_HIGH;
             }
             else if(tem_adc < BASE_NUM)
             {
@@ -160,11 +165,11 @@ void deal_adc_value(int first_adc,int tem_adc)
 #endif
 
             if(heart_var.x_flag == 1){                                                           //X轴为1的时候                                   
-                axis_xy.x_last = (heart_var.x_flag-1)*2+1;
+                axis_xy.x_last = (heart_var.x_flag-1)*COLLECT_X_MUL+1;
 #if 1   //阈值处理
-                if(ecg_var.ecgDataArr[ecg_var.ecgDataLen-COLLECT_STEP] > 705){
+                if(ecg_var.ecgDataArr[ecg_var.ecgDataLen-COLLECT_STEP] > LIMIT_HIGH){
                     first_adc = ecg_var.ecgDataArr[ecg_var.ecgDataLen-COLLECT_STEP];
-                    first_adc = 705;
+                    first_adc = LIMIT_HIGH;
                 }
                 else if(tem_adc < BASE_NUM)
                 {
@@ -180,7 +185,7 @@ void deal_adc_value(int first_adc,int tem_adc)
                 axis_xy.x_last = axis_xy.x_cur;
                 axis_xy.y_last = axis_xy.y_cur;
             }
-            axis_xy.x_cur = heart_var.x_flag*2+1;    //X坐标点
+            axis_xy.x_cur = heart_var.x_flag*COLLECT_X_MUL+1;    //X坐标点  x->位移两格x+2
             axis_xy.y_cur = tem_adc - BASE_NUM;      //Y心跳
 
 #if 0            
@@ -197,7 +202,7 @@ void deal_adc_value(int first_adc,int tem_adc)
             r_printf("x_last = %d,y_last = %d,x_cur = %d,y_cur = %d",axis_xy.x_last,axis_xy.y_last,axis_xy.x_cur,axis_xy.y_cur);
 #endif
 
-            if( axis_xy.x_cur > 150){
+            if( axis_xy.x_cur > 158){
                 heart_var.x_flag = 0;
             }
 
@@ -236,9 +241,13 @@ void collect_heart_sound_deal(void)
     int tem_adc;
     int first_adc;
     int heart_data;
-    adc_value = adc_get_value(TCFG_ADC_DETECTION_HEART_CH);
-    adc_vol =   adc_get_voltage(TCFG_ADC_DETECTION_HEART_CH);
-    adc_vol = adc_vol/VOLTAGE_MODE_DIV;
+    // adc_value = adc_get_value(TCFG_ADC_DETECTION_HEART_CH);
+    // adc_value = adc_get_voltage(TCFG_ADC_DETECTION_HEART_CH);
+    // adc_value = adc_sample_ch_one(c,TCFG_ADC_DETECTION_HEART_CH);              //快速获取adc 电压
+    adc_value = adc_fast_sample(TCFG_ADC_DETECTION_HEART_CH);
+    // adc_value = adc_get_voltage_special(TCFG_ADC_DETECTION_HEART_CH);
+    // adc_value = adc_value/VOLTAGE_MODE_DIV;
+    adc_value = adc_value*VOLTAGE_MODE_MUL;
     tem_adc = adc_value;
     // y_printf("adc_value = %d",adc_value);
     // printf("%d",adc_value);
@@ -246,9 +255,13 @@ void collect_heart_sound_deal(void)
 
 
 /*************************************************app_发送数据************************************************/
-    Get_ECG_ad_value_deal(adc_vol);
+    Get_ECG_ad_value_deal(adc_value);
 /*************************************************历史数据存储************************************************/
-    history_data_write_deal(adc_vol);
+    history_data_write_deal(adc_value);
+
+    // if(get_collect_ok_status()){             //采集成功，暂停画图一段时间
+    //     return;
+    // }
 
 #if 1
     if(app_var.heart_status){
@@ -269,6 +282,7 @@ void collect_heart_sound_deal(void)
 
     if(ecg_var.ecgDataLen == 25){
         heart_data = EcgArrhyAnaly(&ecg_var);
+        // heart_data = EcgArrhyAnaly(&ecg_var_vol);
         elec_heart.heart_data = heart_data;
         // put_buf(&ecg_var.ecgDataArr,ecg_var.ecgDataLen*4);
         // y_printf("heart_data = %d",heart_data);
@@ -287,6 +301,7 @@ void collect_heart_sound_handle(void)
     adc_heart_detect_init();
     if(heart_var.cycle_timer_id == 0){
         heart_var.cycle_timer_id = sys_s_hi_timer_add(NULL,collect_heart_sound_deal,8);
+        // heart_var.cycle_timer_id = sys_timer_add(NULL,collect_heart_sound_deal,8);
     }
 }
 

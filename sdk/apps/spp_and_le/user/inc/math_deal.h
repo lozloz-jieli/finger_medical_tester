@@ -9,12 +9,24 @@
 #define LCD_BASE_NUM            (LCD_START+(LIST_NUM-LCD_START)/2)             //屏幕开始描点中心坐标
 
 //压缩电压参数幅值
-#define VOLTAGE_MODE_DIV        4
+#define VOLTAGE_MODE_DIV        3
+#define VOLTAGE_MODE_MUL        0.25f
 
 //ADC的数据采集宏定义处理
+#if 0
 #define BASE_UP_DATA            655                                            //ADC采集的初始化上限       640-740
 #define BASE_NUM                655                                            //ADC采集的初始化中心基数       640-740
-#define BASE_DOWN_DATA            655                                            //ADC采集的初始化下限       640-740
+#define BASE_DOWN_DATA          655                                            //ADC采集的初始化下限       640-740
+
+#define LIMIT_HIGH              705
+#else
+#define BASE_UP_DATA            460                                            //ADC采集的初始化上限       460-460
+#define BASE_NUM                460                                            //ADC采集的初始化中心基数       460-460
+#define BASE_DOWN_DATA          460                                            //ADC采集的初始化下限       460-520
+
+#define LIMIT_HIGH              520
+
+#endif
 
 #define DECAY_NUM               2
 

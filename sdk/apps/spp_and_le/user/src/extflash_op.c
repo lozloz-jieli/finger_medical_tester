@@ -460,7 +460,7 @@ void history_data_write_deal(u16 ecg_vol)
             
             memcpy(&collect_30s_buffer_data[temp_history_index],&history_data,DETECT_1S_OK_LEN);
             collect_30s_buffer_data[temp_history_index].file = loz_exflash_var.temp_file+1;
-            r_printf("temp_history_index = %d,collect_30s_buffer_data[temp_history_index].file = %d",temp_history_index,collect_30s_buffer_data[temp_history_index].file);
+            // r_printf("temp_history_index = %d,collect_30s_buffer_data[temp_history_index].file = %d",temp_history_index,collect_30s_buffer_data[temp_history_index].file);
             temp_history_index++;
             if(elec_heart.heart_second == 30){                                                                          //30s之前的数据特殊处理，没有30s,就不写入flash
                 len = temp_history_index*DETECT_1S_OK_LEN;                                                              
@@ -536,7 +536,6 @@ void history_data_read_deal(void)
         if(exflash_offset_index<exflash_offset){
             ret = dev_bulk_read(dev_ptr, &cur_history_data, exflash_offset_index, len);
             log_info("++++++++++++++++++++++%s[dev_bulk_read -> exflash_offset_index:%d len:%d ret:%d]", __func__, exflash_offset_index, len, ret);
-            log_debug_hexdump(&cur_history_data, sizeof(HISTORY_DATA));
             // exflash_offset_index += 256;
             // write_history_index();
     //当文件头文件不同步的时候记录这个头文件的地址
@@ -546,14 +545,19 @@ void history_data_read_deal(void)
                 last_file_offset_index = exflash_offset_index;
                 write_history_head_file_offset();                                                  //记录此刻的文件头地址
                 ack_file_num_ok(last_history_data.file);                                        //主动告诉app有一个文件流传输全部完成了
-                if(last_history_data.file>0){
+                memcpy(&last_history_data,&cur_history_data,sizeof(HISTORY_DATA));
+                exflash_offset_index += 256;                                                          //历史数据索引偏移
+                write_history_index();                    
+                if(last_history_data.file>1){
                     elec_heart.history_flag = 0;                                                        //等云服务处理完后继续下发下发数据
+                    return;
                 }
             }
-            exflash_offset_index += 256;
-            write_history_index();            
-            memcpy(&last_history_data,&cur_history_data,sizeof(HISTORY_DATA));
+            log_debug_hexdump(&cur_history_data, sizeof(HISTORY_DATA));
             notify_send_history_data();
+            memcpy(&last_history_data,&cur_history_data,sizeof(HISTORY_DATA));
+            exflash_offset_index += 256;                                                          //历史数据索引偏移
+            write_history_index();            
             loz_exflash_var.history_flag = 1;
             // if()
         }else{                   //机制：如果是读满了（read all data ok），就正片flash进行擦除数据处理
@@ -568,9 +572,10 @@ void history_data_read_deal(void)
                 clear_screen();
                 erase_chip();
                 //停止读取数据
-                delete_history_read();
                 trans_history_over_flag();
                 loz_exflash_var.history_flag = 0;
+                elec_heart.history_flag = 0;
+                delete_history_read();
             }
 
         }
