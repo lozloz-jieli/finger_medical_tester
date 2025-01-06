@@ -5271,7 +5271,7 @@
 1711873585 e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\include_lib\driver\cpu\br23\asm\power_interface.h
 	"generic/typedef.h"
 
-1735014315 e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\include\app_config.h
+1735811700 e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\include\app_config.h
 	"board_config.h"
 	"usb_common_def.h"
 	"btcontroller_mode.h"
@@ -5704,7 +5704,7 @@
 
 1734676172 e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\user\inc\loz_lcd_ui.h
 
-1735564891 e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\user\inc\math_deal.h
+1735812125 e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\user\inc\math_deal.h
 
 1733801053 e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\user\inc\utils.h
 	"system/sys_time.h"
@@ -5845,7 +5845,7 @@
 
 1711873585 e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\include\app_action.h
 
-1734682734 e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\include\app_main.h
+1735822413 e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\include\app_main.h
 
 1711873585 e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\cpu\br23\audio_config.h
 	"generic/typedef.h"
@@ -9834,7 +9834,7 @@
 	"custom_cfg.h"
 	"le_gatt_common.h"
 
-1734677051 source:e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\examples\trans_data\app_spp_and_le.c
+1735811758 source:e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\examples\trans_data\app_spp_and_le.c
 	"system/app_core.h"
 	"system/includes.h"
 	"server/server_core.h"
@@ -10139,7 +10139,7 @@
 	"audio_config.h"
 	"debug.h"
 
-1734681975 source:e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\user\src\app_ui.c
+1735978084 source:e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\user\src\app_ui.c
 	"app_config.h"
 	"system/includes.h"
 	"asm/includes.h"
@@ -10236,7 +10236,7 @@
 	"app_main.h"
 	"debug.h"
 
-1734676194 source:e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\user\src\loz_lcd_ui.c
+1735869847 source:e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\user\src\loz_lcd_ui.c
 	"system/app_core.h"
 	"system/includes.h"
 	"app_config.h"
@@ -10260,7 +10260,7 @@
 
 1728886805 source:e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\user\src\loz_rtc.c
 
-1734610669 source:e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\user\src\math_deal.c
+1735978327 source:e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\user\src\math_deal.c
 	"system/app_core.h"
 	"system/includes.h"
 	"app_config.h"
@@ -10300,7 +10300,7 @@
 	"system/includes.h"
 	"generic/log.h"
 
-1733977133 source:e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\board\br23\board_ac635n_demo.c
+1735977658 source:e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\board\br23\board_ac635n_demo.c
 	"app_config.h"
 	"system/includes.h"
 	"asm/charge.h"
@@ -10333,7 +10333,7 @@
 	"debug.h"
 	"uart_update.h"
 
-1735613843 source:e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\user\src\heart_adc.c
+1735825057 source:e:\loz_project_ble\y_yan\h_合肥心之声_带屏幕第二版本\sdk_v230\sdk\apps\spp_and_le\user\src\heart_adc.c
 	"system/app_core.h"
 	"system/includes.h"
 	"app_config.h"

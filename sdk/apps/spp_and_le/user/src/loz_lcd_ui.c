@@ -1627,8 +1627,17 @@ void collect_30s_mode(void)
     SetAddress(x, y+16*2, 16, 16);  // 设置下一个字符的位置 
     Draw16x16Char(x, y+32, collect_30s + 32*2, COLOR_WHITE, COLOR_BLACK);    
 
+    // 绘制第四个字符
+    SetAddress(x, y+16*3, 16, 8);  // 设置显示区域
+    Draw_any_num(x, y+16*3, &num_0_9_16_8[3], COLOR_WHITE, COLOR_BLACK,16); 
 
+    // 绘制第五个字符
+    SetAddress(x,  y+16*3+8, 16, 8);  // 设置下一个字符的位置
+    Draw_any_num(x, y+16*3+8, &num_0_9_16_8[0], COLOR_WHITE, COLOR_BLACK,16);
     
+    // 绘制第五个字符
+    SetAddress(x,  y+16*3+8*2, 16, 8);  // 设置下一个字符的位置
+    Draw_any_num(x, y+16*3+8*2, &char_a_z_16_16['s'-'a'], COLOR_WHITE, COLOR_BLACK,16);    
 }
 
 void collect_full_mode(void)

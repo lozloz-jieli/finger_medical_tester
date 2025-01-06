@@ -598,7 +598,7 @@ void X_timer_scan(void *priv)
     history_data.unix_time0_h = unix_time >> 8;   
     history_data.unix_time0_l = unix_time;  
     
-    // r_printf("%d-%d-%d %d:%d:%d\n", current_time.year, current_time.month, current_time.day, current_time.hour, current_time.min, current_time.sec);
+    r_printf("%d-%d-%d %d:%d:%d\n", current_time.year, current_time.month, current_time.day, current_time.hour, current_time.min, current_time.sec);
 }
 
 extern u32 timer_get_ms(void);

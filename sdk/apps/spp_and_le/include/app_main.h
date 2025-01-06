@@ -29,6 +29,8 @@ typedef struct _APP_VAR {
     u8 heart_status;                   //心跳 画点的状态  1：开始     0 ：停止
     u8 disp_collect_ok;                //显示30s采集ok的标志
     u8 disp_collect_fail;                //显示30s采集失败的标志
+    u8 disp_collect_all_ok;             //显示一包数据全部采集完成并且记录；
+
     u8 buzzer_status;
     u8 buzzer_cnt;
     u8 buzz_mute;                   //蜂鸣器的mute住是否

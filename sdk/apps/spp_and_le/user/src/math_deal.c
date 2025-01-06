@@ -24,6 +24,7 @@
 #include "lost.h"
 
 
+extern void modify_poweroff(void);
 
 
 #if 1//LE_DEBUG_PRINT_EN
@@ -425,7 +426,7 @@ void file_vm_deal(void)
 
 void collect_timer_cnt_deal(void)
 {
-    heart_var.drop_flag = heart_drop_out_read();
+    // heart_var.drop_flag = heart_drop_out_read();
 
 
     if(loz_exflash_var.history_flag == 1){
@@ -450,6 +451,7 @@ void collect_timer_cnt_deal(void)
 #if 1     //处理30s条件满足事件
     if(heart_var.drop_flag == 0){                         //手指脱落
         // putchar('T');
+        // printf("heart_var.drop_flag = %d,app_var.heart_status = %d",heart_var.drop_flag,app_var.heart_status);
         if(app_var.heart_status){                         //已经开始画点了
             if(elec_heart.heart_second < 30 && elec_heart.heart_second >0){
                 clear_screen();
@@ -460,8 +462,12 @@ void collect_timer_cnt_deal(void)
                 
             }
             else{
-                // history_data.file++;                    //记录一次文本数据
-                // write_history_file();
+                app_var.disp_collect_all_ok = 1;
+                clear_screen();
+                collect_ok_mode();
+                clear_axis_status();
+                buzzer_ring_status_handle(BUZZ_RING_ONCE);
+                clear_30s_buffer();                     //记录一次文本数据
             }
             app_var.disp_collect_fail = 1;          //采集失败标志位
             app_var.heart_status = 0;              //心跳 画点的状态
@@ -471,6 +477,8 @@ void collect_timer_cnt_deal(void)
         }        
         return;
     }else{
+        modify_powerof();
+        app_var.disp_collect_all_ok = 0;
         // putchar('t');
         if(!app_var.heart_status){
             clear_screen();
@@ -531,6 +539,105 @@ void collect_timer_cnt_delete(void)
     }
 }
 
+
+/********************************************************************************************************************************************** */
+/*
+**********************************************************************
+函数功能:处理心电手指测量IO口初始化
+函数形参：
+函数返回值：None
+备注：
+日期：2024年12月06日
+作者：lozloz
+版本：V0.0
+**********************************************************************
+*/
+void ECG_drop_port_init(void)
+{
+#if 0    
+    gpio_set_pull_down(TCFG_ECG_DROP_OUT_PIN, 0);
+    gpio_set_pull_up(TCFG_ECG_DROP_OUT_PIN, 0);    
+    gpio_set_direction(TCFG_ECG_DROP_OUT_PIN, 1);
+    gpio_set_die(TCFG_ECG_DROP_OUT_PIN, 1);
+#else
+    adc_add_sample_ch(TCFG_ECG_DROP_OUT_CH);          //注意：初始化AD_KEY之前，先初始化ADC
+
+    gpio_set_die(TCFG_ECG_DROP_OUT_PIN, 0);
+    gpio_set_direction(TCFG_ECG_DROP_OUT_PIN, 1);
+    gpio_set_pull_down(TCFG_ECG_DROP_OUT_PIN, 0);
+    gpio_set_pull_up(TCFG_ECG_DROP_OUT_PIN, 0);
+#endif    
+}     
+
+
+/*
+**********************************************************************
+函数功能:处理心电手指测量是否脱落
+函数形参：
+函数返回值：None
+备注：
+日期：2024年12月06日
+作者：lozloz
+版本：V0.0
+**********************************************************************
+*/
+u8 heart_drop_out_read(void)
+{
+    int drop_adc_value;
+    drop_adc_value = adc_get_voltage(TCFG_ECG_DROP_OUT_CH);
+    y_printf("drop_adc_value = %d",drop_adc_value);
+    if(drop_adc_value < 1000 || drop_adc_value > 1800){
+        return 0;
+    }
+    else{
+        return 1;
+    }
+}
+
+/*
+**********************************************************************
+函数功能：手指脱落检测处理
+函数形参：
+函数返回值：None
+备注：
+日期：2025年1月2日
+作者：lozloz
+版本：V0.0
+**********************************************************************
+*/
+u16 drop_out_timer_id;
+
+void drop_out_filter_deal(void)
+{
+    int last_ret_value;
+    int ret_value;    
+    ret_value = heart_drop_out_read();
+
+//消抖处理
+    static u32 filter_cnt;
+    if(ret_value == last_ret_value){
+        // putchar('F');
+        if(filter_cnt>3){
+            heart_var.drop_flag =  ret_value;
+        }
+        filter_cnt++;
+    }else{
+        // putchar('N');
+        filter_cnt = 0;
+    }
+    last_ret_value = ret_value;   
+    // r_printf("heart_var.drop_flag = %d",heart_var.drop_flag);
+
+}
+
+
+void drop_out_filter_handle(void)
+{
+    ECG_drop_port_init();
+    if(drop_out_timer_id == 0){
+        drop_out_timer_id = sys_timer_add(NULL,drop_out_filter_deal,500);
+    }
+}
 
 
 

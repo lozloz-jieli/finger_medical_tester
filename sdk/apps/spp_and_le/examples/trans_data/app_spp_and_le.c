@@ -254,6 +254,7 @@ static void spple_app_start()
     X_timer_scan(NULL);
     // LCD_PWR_ECG_H();
     collect_heart_sound_handle();
+    drop_out_filter_handle();
     lcd_device_init();
     // Display_row(0xf800);
     // DispBand();

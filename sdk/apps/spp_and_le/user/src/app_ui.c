@@ -44,7 +44,7 @@ enum{
 
 
 enum{
-    UNIX_TIME1_H = 2,
+    UNIX_TIME1_H = 3,
     UNIX_TIME1_L,
     UNIX_TIME0_H,
     UNIX_TIME0_L,

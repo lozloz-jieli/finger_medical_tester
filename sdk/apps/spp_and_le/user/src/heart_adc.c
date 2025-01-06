@@ -52,22 +52,6 @@ void ECG_init(void)
     gpio_set_output_value(TCFG_ECG_MCU_OUT_PIN,1);    //输出电平，为ECG电路供电
 }     
 
-void ECG_drop_port_init(void)
-{
-#if 0    
-    gpio_set_pull_down(TCFG_ECG_DROP_OUT_PIN, 0);
-    gpio_set_pull_up(TCFG_ECG_DROP_OUT_PIN, 0);    
-    gpio_set_direction(TCFG_ECG_DROP_OUT_PIN, 1);
-    gpio_set_die(TCFG_ECG_DROP_OUT_PIN, 1);
-#else
-    adc_add_sample_ch(TCFG_ECG_DROP_OUT_CH);          //注意：初始化AD_KEY之前，先初始化ADC
-
-    gpio_set_die(TCFG_ECG_DROP_OUT_PIN, 0);
-    gpio_set_direction(TCFG_ECG_DROP_OUT_PIN, 1);
-    gpio_set_pull_down(TCFG_ECG_DROP_OUT_PIN, 0);
-    gpio_set_pull_up(TCFG_ECG_DROP_OUT_PIN, 0);
-#endif    
-}     
 
 
 void adc_heart_detect_init(void)
@@ -98,30 +82,6 @@ void notify_draw_line(void)
 
 }
 
-/*
-**********************************************************************
-函数功能:处理心电手指测量是否脱落
-函数形参：
-函数返回值：None
-备注：
-日期：2024年12月06日
-作者：lozloz
-版本：V0.0
-**********************************************************************
-*/
-u8 heart_drop_out_read(void)
-{
-    int drop_adc_value;
-    drop_adc_value = adc_get_voltage(TCFG_ECG_DROP_OUT_CH);
-    // r_printf("dorp_adc_value = %d",drop_adc_value);
-
-    if(drop_adc_value < 1000){
-        return 0;
-    }
-    else{
-        return 1;
-    }
-}
 
 
 
@@ -228,7 +188,11 @@ void collect_heart_sound_deal(void)
         return;
     }
 
-    if(get_collect_ok_status()){             //采集成功，暂停一段时间
+    if(app_var.disp_collect_all_ok == 1){   //手指脱落时候，大于30s采集成功，暂停一段时间
+        return;
+    }
+
+    if(get_collect_ok_status()){             //30s采集成功，暂停一段时间
         return;
     }
 
@@ -296,7 +260,7 @@ void collect_heart_sound_handle(void)
 {
     log_info("%s",__func__);
     ECG_init();
-    ECG_drop_port_init();
+    // ECG_drop_port_init();
     EcgArrhyAnalyInit();
     adc_heart_detect_init();
     if(heart_var.cycle_timer_id == 0){
